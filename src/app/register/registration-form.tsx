@@ -62,6 +62,8 @@ type Props = {
   initialName: string;
   initialRef: string;
   claudeEnabled: boolean;
+  /** When set (e.g. from `/register?domain=CLAUDE`), pre-select this track. */
+  initialDomain?: "CLAUDE";
 };
 
 type RegistrationDomain = RegisterPayloadInput["domain"];
@@ -111,6 +113,7 @@ export function RegistrationForm({
   initialName,
   initialRef,
   claudeEnabled,
+  initialDomain,
 }: Props) {
   const router = useRouter();
   const [skillDraft, setSkillDraft] = useState("");
@@ -135,7 +138,12 @@ export function RegistrationForm({
       organization: "",
       role: "",
       yearsExperience: 0,
-      domain: claudeEnabled ? "CLAUDE" : "SE",
+      domain:
+        initialDomain === "CLAUDE" && claudeEnabled
+          ? "CLAUDE"
+          : claudeEnabled
+            ? "CLAUDE"
+            : "SE",
       skills: [],
       linkedinUrl: "",
       phone: "",
