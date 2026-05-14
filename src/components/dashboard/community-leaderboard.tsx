@@ -23,6 +23,8 @@ import { cn } from "@/lib/utils";
 type Props = {
   rows: LeaderboardRow[];
   totalCount: number;
+  /** When false, hide Claude-specific leaderboard filter (server-driven). */
+  claudeEnabled?: boolean;
   filters: {
     domain: "AI" | "DS" | "SE" | "CLAUDE" | "ALL";
     search: string;
@@ -47,6 +49,7 @@ function domainBadgeClass(domain: Domain): string {
 export function CommunityLeaderboard({
   rows,
   totalCount,
+  claudeEnabled = true,
   filters,
 }: Props) {
   const router = useRouter();
@@ -132,7 +135,9 @@ export function CommunityLeaderboard({
                   <SelectItem value="AI">AI</SelectItem>
                   <SelectItem value="DS">DS</SelectItem>
                   <SelectItem value="SE">SE</SelectItem>
-                  <SelectItem value="CLAUDE">Claude</SelectItem>
+                  {claudeEnabled ? (
+                    <SelectItem value="CLAUDE">Claude</SelectItem>
+                  ) : null}
                 </SelectContent>
               </Select>
             </div>

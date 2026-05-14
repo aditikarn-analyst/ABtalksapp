@@ -43,6 +43,7 @@ import { formatDateIST } from "@/lib/date-utils";
 import { prisma } from "@/lib/db";
 import { Domain } from "@prisma/client";
 import { ClaudeChallengeModal } from "@/components/dashboard/claude-challenge-modal";
+import { isClaudeEnabled } from "@/lib/feature-flags";
 
 function readQueryParam(
   query: Record<string, string | string[] | undefined>,
@@ -119,9 +120,13 @@ export default async function DashboardPage({
   const showPastMissedToast =
     readQueryParam(query, "toast") === "past-missed";
   const dashboardPathWithoutToast = `/dashboard${stripQueryKeys(query, ["toast"])}`;
-  const leaderboardDomain = parseLeaderboardDomain(
+  const claudeEnabled = isClaudeEnabled();
+  let leaderboardDomain = parseLeaderboardDomain(
     readQueryParam(query, "lb_domain"),
   );
+  if (!claudeEnabled && leaderboardDomain === "CLAUDE") {
+    leaderboardDomain = "ALL";
+  }
   const leaderboardSearch = readQueryParam(query, "lb_search");
 
   const data = await getDashboardData(session.user.id);
@@ -184,22 +189,24 @@ export default async function DashboardPage({
   let showClaudeModal = false;
   let claudeModalStartsAt: Date | null = null;
 
-  const claudeEnrollmentCheck = await prisma.enrollment.findFirst({
-    where: {
-      userId: session.user.id,
-      domain: Domain.CLAUDE,
-    },
-    select: { id: true },
-  });
-
-  if (!claudeEnrollmentCheck) {
-    const claudeChallengeRow = await prisma.challenge.findUnique({
-      where: { domain: Domain.CLAUDE },
-      select: { startsAt: true },
+  if (claudeEnabled) {
+    const claudeEnrollmentCheck = await prisma.enrollment.findFirst({
+      where: {
+        userId: session.user.id,
+        domain: Domain.CLAUDE,
+      },
+      select: { id: true },
     });
-    if (claudeChallengeRow?.startsAt) {
-      showClaudeModal = true;
-      claudeModalStartsAt = claudeChallengeRow.startsAt;
+
+    if (!claudeEnrollmentCheck) {
+      const claudeChallengeRow = await prisma.challenge.findUnique({
+        where: { domain: Domain.CLAUDE },
+        select: { startsAt: true },
+      });
+      if (claudeChallengeRow?.startsAt) {
+        showClaudeModal = true;
+        claudeModalStartsAt = claudeChallengeRow.startsAt;
+      }
     }
   }
 
@@ -210,6 +217,7 @@ export default async function DashboardPage({
         domain: leaderboardDomain,
         search: leaderboardSearch,
         viewerUserId: session.user.id,
+        claudeLeaderboardEnabled: claudeEnabled,
       }),
       getAvailableQuiz(session.user.id, dashboardData.enrollment.id),
       getQuizAttemptHistory(session.user.id, dashboardData.enrollment.id),
@@ -443,6 +451,7 @@ export default async function DashboardPage({
             <CommunityLeaderboard
               rows={leaderboard.rows}
               totalCount={leaderboard.totalCount}
+              claudeEnabled={claudeEnabled}
               filters={{
                 domain: leaderboardDomain,
                 search: leaderboardSearch,

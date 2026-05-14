@@ -1,4 +1,4 @@
-import type { Domain } from "@prisma/client";
+import { Domain } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
 export type LeaderboardRow = {
@@ -26,14 +26,20 @@ export async function getLeaderboard(
     search?: string;
     limit?: number;
     viewerUserId?: string;
+    /** When false and domain is ALL, CLAUDE rows are hidden (feature flag off). */
+    claudeLeaderboardEnabled?: boolean;
   },
 ): Promise<LeaderboardResult> {
   const domain = input.domain ?? "ALL";
   const search = input.search?.trim() ?? "";
   const limit = Math.max(1, Math.min(input.limit ?? 100, 200));
 
+  const claudeLeaderboardEnabled = input.claudeLeaderboardEnabled ?? true;
+  const hideClaudeFromAll = !claudeLeaderboardEnabled && domain === "ALL";
+
   const where = {
     status: { not: "ABANDONED" as const },
+    ...(hideClaudeFromAll ? { domain: { not: Domain.CLAUDE } } : {}),
     ...(domain !== "ALL" ? { domain } : {}),
     ...(search
       ? {

@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
-import { Domain } from "@prisma/client";
 import {
   BarChart3,
   BrainCircuit,
@@ -62,10 +61,13 @@ const GRADUATION_YEARS = [2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 
 type Props = {
   initialName: string;
   initialRef: string;
+  claudeEnabled: boolean;
 };
 
+type RegistrationDomain = RegisterPayloadInput["domain"];
+
 const domainCards: {
-  value: Domain;
+  value: RegistrationDomain;
   title: string;
   description: string;
   icon: typeof Code2;
@@ -73,7 +75,7 @@ const domainCards: {
   featured?: boolean;
 }[] = [
   {
-    value: Domain.CLAUDE,
+    value: "CLAUDE",
     title: "Claude AI Mastery — New!",
     description:
       "Our newest track — synchronized cohort start for everyone.",
@@ -82,14 +84,14 @@ const domainCards: {
     featured: true,
   },
   {
-    value: Domain.SE,
+    value: "SE",
     title: "Software Engineering",
     description: "Build systems, APIs, and full-stack apps over 60 days.",
     icon: Code2,
     accent: "border-l-domains-se",
   },
   {
-    value: Domain.DS,
+    value: "DS",
     title: "Data Science",
     description:
       "Data, analysis, and practical workflows from exploration to modeling.",
@@ -97,7 +99,7 @@ const domainCards: {
     accent: "border-l-domains-ds",
   },
   {
-    value: Domain.AI,
+    value: "AI",
     title: "Artificial Intelligence",
     description: "Foundations and applied AI alongside the community.",
     icon: BrainCircuit,
@@ -105,10 +107,22 @@ const domainCards: {
   },
 ];
 
-export function RegistrationForm({ initialName, initialRef }: Props) {
+export function RegistrationForm({
+  initialName,
+  initialRef,
+  claudeEnabled,
+}: Props) {
   const router = useRouter();
   const [skillDraft, setSkillDraft] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const domainCardList = useMemo(
+    () =>
+      claudeEnabled
+        ? domainCards
+        : domainCards.filter((c) => c.value !== "CLAUDE"),
+    [claudeEnabled],
+  );
 
   const form = useForm<RegistrationFormValues>({
     resolver: zodResolver(registerPayloadSchema) as unknown as Resolver<RegistrationFormValues>,
@@ -121,7 +135,7 @@ export function RegistrationForm({ initialName, initialRef }: Props) {
       organization: "",
       role: "",
       yearsExperience: 0,
-      domain: Domain.CLAUDE,
+      domain: claudeEnabled ? "CLAUDE" : "SE",
       skills: [],
       linkedinUrl: "",
       phone: "",
@@ -183,7 +197,7 @@ export function RegistrationForm({ initialName, initialRef }: Props) {
   }
 
   const domainHelperText =
-    selectedDomain === Domain.CLAUDE
+    selectedDomain === "CLAUDE"
       ? "🚀 The newest challenge — 60-Day Claude AI Mastery. Synchronized June 1, 2026 start."
       : "Choose your domain — your daily challenges will be tailored to this area.";
 
@@ -459,7 +473,7 @@ export function RegistrationForm({ initialName, initialRef }: Props) {
         <Label>Domain</Label>
         <p className="mt-1 text-sm text-muted-foreground">{domainHelperText}</p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {domainCards.map(
+          {domainCardList.map(
             ({ value, title, description, icon: Icon, accent, featured }) => {
             const selected = selectedDomain === value;
             return (

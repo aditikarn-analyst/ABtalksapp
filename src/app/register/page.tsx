@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getReferralCookie } from "@/app/actions/referral-actions";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { isClaudeEnabled } from "@/lib/feature-flags";
 import {
   Card,
   CardContent,
@@ -65,6 +66,7 @@ export default async function RegisterPage({ searchParams }: PageProps) {
   const initialRef = refFromUrl ?? refFromCookie ?? "";
 
   const initialName = session.user.name?.trim() ?? "";
+  const claudeEnabled = isClaudeEnabled();
 
   return (
     <div className="flex min-h-svh flex-col bg-gradient-to-br from-primary/5 via-background to-background">
@@ -86,6 +88,7 @@ export default async function RegisterPage({ searchParams }: PageProps) {
             <RegistrationForm
               initialName={initialName}
               initialRef={initialRef}
+              claudeEnabled={claudeEnabled}
             />
           </CardContent>
         </Card>

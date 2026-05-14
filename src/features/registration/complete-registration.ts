@@ -1,5 +1,6 @@
 import { EnrollmentStatus, UserType } from "@prisma/client";
 import { clearReferralCookie } from "@/app/actions/referral-actions";
+import { isClaudeEnabled } from "@/lib/feature-flags";
 import type { RegisterPayloadInput } from "@/lib/validations/register";
 import { prisma } from "@/lib/db";
 import { generateUniqueReferralCode } from "./generate-referral-code";
@@ -45,6 +46,14 @@ export async function completeRegistration(
 
   if (existingProfile && !existingEnrollment) {
     await prisma.studentProfile.delete({ where: { userId } });
+  }
+
+  if (input.domain === "CLAUDE" && !isClaudeEnabled()) {
+    return {
+      ok: false,
+      reason: "internal_error",
+      message: "The Claude challenge is not available yet.",
+    };
   }
 
   let referrerId: string | null = null;
