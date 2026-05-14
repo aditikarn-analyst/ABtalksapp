@@ -1,7 +1,13 @@
-import type { Domain, EnrollmentStatus, Role, SubmissionStatus } from "@prisma/client";
+import type {
+  Domain,
+  EnrollmentStatus,
+  Role,
+  SubmissionStatus,
+} from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getCurrentDayNumber, IST } from "@/lib/date-utils";
 import { formatInTimeZone } from "date-fns-tz";
+import { resolveDashboardEnrollment } from "@/features/enrollment/resolve-dashboard-enrollment";
 
 export type DashboardDataNoEnrollment = {
   hasEnrollment: false;
@@ -26,6 +32,7 @@ export type DashboardDataWithEnrollment = {
   };
   enrollment: {
     id: string;
+    domain: Domain;
     currentDay: number;
     totalDays: number;
     daysCompleted: number;
@@ -111,26 +118,10 @@ async function resolveAvailableQuizForBanner(
   return null;
 }
 
-const enrollmentSelect = {
-  id: true,
-  challengeId: true,
-  domain: true,
-  startedAt: true,
-  daysCompleted: true,
-  currentStreak: true,
-  longestStreak: true,
-  status: true,
-  challenge: {
-    select: {
-      id: true,
-      domain: true,
-      totalDays: true,
-      startsAt: true,
-    },
-  },
-} as const;
-
-export async function getDashboardData(userId: string): Promise<DashboardData> {
+export async function getDashboardData(
+  userId: string,
+  enrollmentId?: string | null,
+): Promise<DashboardData> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -166,22 +157,11 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
     isReadyForInterview: user.studentProfile.isReadyForInterview,
   };
 
-  let enrollment = await prisma.enrollment.findFirst({
-    where: {
-      userId,
-      domain: user.studentProfile.domain,
-    },
-    orderBy: { startedAt: "desc" },
-    select: enrollmentSelect,
-  });
-
-  if (!enrollment) {
-    enrollment = await prisma.enrollment.findFirst({
-      where: { userId },
-      orderBy: { startedAt: "desc" },
-      select: enrollmentSelect,
-    });
-  }
+  const enrollment = await resolveDashboardEnrollment(
+    userId,
+    enrollmentId ?? undefined,
+    user.studentProfile.domain,
+  );
 
   if (!enrollment) {
     return {
@@ -234,7 +214,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
   }
 
   const recentSubmissions = await prisma.submission.findMany({
-    where: { userId },
+    where: { userId, enrollmentId: enrollment.id },
     orderBy: { submittedAt: "desc" },
     take: 7,
     select: {
@@ -276,6 +256,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
     },
     enrollment: {
       id: enrollment.id,
+      domain: enrollment.domain,
       currentDay,
       totalDays,
       daysCompleted: enrollment.daysCompleted,

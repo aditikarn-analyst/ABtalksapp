@@ -4,13 +4,13 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { getCurrentDayNumber } from "@/lib/date-utils";
-import { EnrollmentStatus } from "@prisma/client";
 import { normalizeGithubUrl } from "@/features/submission/validate-github-url";
 import { validateSubmissionUrl } from "@/lib/validations/submission";
 import {
   assertPastDaySubmittable,
   submitDay,
 } from "@/features/submission/submit-day";
+import { resolveChallengeEnrollment } from "@/features/enrollment/resolve-dashboard-enrollment";
 
 const githubStepSchema = z.object({
   githubUrl: z.string().min(1, "GitHub URL is required"),
@@ -54,21 +54,13 @@ export async function submitGithubStepAction(
   const userId = session.user.id;
   const { githubUrl, dayNumber } = parsed.data;
 
-  const enrollment = await prisma.enrollment.findFirst({
-    where: {
-      userId,
-      status: { not: EnrollmentStatus.ABANDONED },
-    },
-    orderBy: { startedAt: "desc" },
-    select: {
-      id: true,
-      userId: true,
-      challengeId: true,
-      startedAt: true,
-      domain: true,
-      challenge: { select: { startsAt: true } },
-    },
-  });
+  const enrollmentIdRaw = formData.get("enrollmentId");
+  const enrollmentId =
+    typeof enrollmentIdRaw === "string" && enrollmentIdRaw.trim() !== ""
+      ? enrollmentIdRaw.trim()
+      : undefined;
+
+  const enrollment = await resolveChallengeEnrollment(userId, enrollmentId);
 
   if (!enrollment) {
     return { ok: false, message: "No active enrollment" };
@@ -145,10 +137,17 @@ export async function submitLinkedinStepAction(formData: FormData) {
     };
   }
 
+  const enrollmentIdRaw = formData.get("enrollmentId");
+  const enrollmentId =
+    typeof enrollmentIdRaw === "string" && enrollmentIdRaw.trim() !== ""
+      ? enrollmentIdRaw.trim()
+      : undefined;
+
   return submitDay({
     userId: session.user.id,
     githubUrl: parsed.data.githubUrl,
     linkedinUrl: parsed.data.linkedinUrl,
     dayNumber: parsed.data.dayNumber,
+    enrollmentId,
   });
 }

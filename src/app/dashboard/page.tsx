@@ -43,6 +43,7 @@ import { formatDateIST } from "@/lib/date-utils";
 import { prisma } from "@/lib/db";
 import { Domain } from "@prisma/client";
 import { ClaudeChallengeModal } from "@/components/dashboard/claude-challenge-modal";
+import { getUserActiveEnrollments } from "@/features/enrollment/get-user-enrollments";
 import { isClaudeEnabled } from "@/lib/feature-flags";
 
 function readQueryParam(
@@ -72,6 +73,12 @@ function stripQueryKeys(
   }
   const s = sp.toString();
   return s ? `?${s}` : "";
+}
+
+function challengeHref(enrollmentId: string, path: string): string {
+  const q = new URLSearchParams();
+  q.set("challenge", enrollmentId);
+  return `${path}?${q.toString()}`;
 }
 
 function parseLeaderboardDomain(
@@ -129,7 +136,13 @@ export default async function DashboardPage({
   }
   const leaderboardSearch = readQueryParam(query, "lb_search");
 
-  const data = await getDashboardData(session.user.id);
+  const selectedEnrollmentId =
+    readQueryParam(query, "challenge") || undefined;
+
+  const [allEnrollments, data] = await Promise.all([
+    getUserActiveEnrollments(session.user.id),
+    getDashboardData(session.user.id, selectedEnrollmentId),
+  ]);
 
   if (!data.profile || !data.enrollment) {
     redirect("/register");
@@ -173,7 +186,13 @@ export default async function DashboardPage({
 
     return (
       <div className="flex min-h-svh flex-col bg-muted/30">
-        <AppHeader user={headerUser} />
+        <AppHeader
+          user={headerUser}
+          userEnrollments={allEnrollments}
+          activeEnrollmentId={dashboardData.enrollment.id}
+          headerDomain={dashboardData.enrollment.domain}
+          domain={dashboardData.profile.domain as Domain}
+        />
         <main className="mx-auto flex w-full max-w-6xl flex-1">
           <EnrollmentEndedScreen
             studentName={dashboardData.profile.fullName}
@@ -212,7 +231,9 @@ export default async function DashboardPage({
 
   const [heatmapData, leaderboard, quizAvailability, quizHistory] =
     await Promise.all([
-      getHeatmapData(dashboardData.enrollment.id),
+      getHeatmapData(dashboardData.enrollment.id, {
+        viewerUserId: session.user.id,
+      }),
       getLeaderboard({
         domain: leaderboardDomain,
         search: leaderboardSearch,
@@ -233,7 +254,13 @@ export default async function DashboardPage({
 
   return (
     <div className="flex min-h-svh flex-col bg-muted/30">
-      <AppHeader user={headerUser} />
+      <AppHeader
+        user={headerUser}
+        userEnrollments={allEnrollments}
+        activeEnrollmentId={dashboardData.enrollment.id}
+        headerDomain={dashboardData.enrollment.domain}
+        domain={dashboardData.profile.domain as Domain}
+      />
       {showClaudeModal && claudeModalStartsAt ? (
         <ClaudeChallengeModal startsAt={claudeModalStartsAt} />
       ) : null}
@@ -264,7 +291,10 @@ export default async function DashboardPage({
             </CardDescription>
           </CardHeader>
           <CardContent className="min-w-0 px-5 pb-6">
-            <SubmissionHeatmap data={heatmapData} />
+            <SubmissionHeatmap
+              data={heatmapData}
+              challengeEnrollmentId={enrollment.id}
+            />
           </CardContent>
         </Card>
 
@@ -352,7 +382,7 @@ export default async function DashboardPage({
               <CardHeader>
                 <CardTitle>Today&apos;s task</CardTitle>
                 <CardDescription>
-                  {profile.domain} challenge · IST day {enrollment.currentDay}
+                  {enrollment.domain} challenge · IST day {enrollment.currentDay}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -388,7 +418,10 @@ export default async function DashboardPage({
                       the next calendar day.
                     </p>
                     <Link
-                      href="/challenge/today"
+                      href={challengeHref(
+                        enrollment.id,
+                        "/challenge/today",
+                      )}
                       className={cn(
                         buttonVariants({ variant: "outline", size: "default" }),
                         "w-full justify-center sm:w-auto",
@@ -426,7 +459,10 @@ export default async function DashboardPage({
                         {todayTask.title}
                       </h3>
                       <Link
-                        href="/challenge/today"
+                        href={challengeHref(
+                          enrollment.id,
+                          "/challenge/today",
+                        )}
                         className={cn(
                           buttonVariants({ variant: "default" }),
                           "inline-flex h-11 w-full items-center justify-center gap-2 font-medium sm:w-auto sm:px-8",

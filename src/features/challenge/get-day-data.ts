@@ -1,8 +1,8 @@
 import type { DailyTask, Domain, SubmissionStatus } from "@prisma/client";
-import { EnrollmentStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getCurrentDayNumber } from "@/lib/date-utils";
 import { readDayNumberFromMetadata } from "@/lib/admin-action-metadata";
+import { resolveChallengeEnrollment } from "@/features/enrollment/resolve-dashboard-enrollment";
 
 export type DayData = {
   task: DailyTask;
@@ -16,28 +16,18 @@ export type DayData = {
   isUnlocked: boolean;
   /** Admin rejected this day’s submission (row deleted); user may still resubmit via /challenge/[day]. */
   hasRejectResubmit: boolean;
-  enrollment: { domain: Domain };
+  enrollment: { id: string; domain: Domain };
 };
 
 export async function getDayData(
   userId: string,
   dayNumber: number,
+  enrollmentId?: string | null,
 ): Promise<DayData | null> {
-  const enrollment = await prisma.enrollment.findFirst({
-    where: {
-      userId,
-      status: { not: EnrollmentStatus.ABANDONED },
-    },
-    orderBy: { startedAt: "desc" },
-    select: {
-      id: true,
-      userId: true,
-      challengeId: true,
-      domain: true,
-      startedAt: true,
-      challenge: { select: { startsAt: true } },
-    },
-  });
+  const enrollment = await resolveChallengeEnrollment(
+    userId,
+    enrollmentId ?? undefined,
+  );
 
   if (!enrollment) {
     return null;
@@ -93,6 +83,6 @@ export async function getDayData(
     currentDayNumber,
     isUnlocked,
     hasRejectResubmit,
-    enrollment: { domain: enrollment.domain },
+    enrollment: { id: enrollment.id, domain: enrollment.domain },
   };
 }

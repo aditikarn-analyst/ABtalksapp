@@ -6,6 +6,7 @@ import { normalizeGithubUrl } from "./validate-github-url";
 import { validateSubmissionUrl } from "@/lib/validations/submission";
 import { validateLinkedinUrl } from "./validate-linkedin-url";
 import { computeStreakStats } from "./streak-utils";
+import { resolveChallengeEnrollment } from "@/features/enrollment/resolve-dashboard-enrollment";
 
 /** Blocks backfill for past calendar days with no submission, unless admin reject resubmit applies. */
 export async function assertPastDaySubmittable(
@@ -65,20 +66,15 @@ export async function submitDay(input: {
   githubUrl: string;
   linkedinUrl: string;
   dayNumber: number;
+  enrollmentId?: string | null;
 }): Promise<SubmitDayResult> {
   const { userId, linkedinUrl, dayNumber } = input;
   const githubNormalized = normalizeGithubUrl(input.githubUrl.trim());
 
-  const enrollment = await prisma.enrollment.findFirst({
-    where: {
-      userId,
-      status: { not: EnrollmentStatus.ABANDONED },
-    },
-    orderBy: { startedAt: "desc" },
-    include: {
-      challenge: { select: { startsAt: true } },
-    },
-  });
+  const enrollment = await resolveChallengeEnrollment(
+    userId,
+    input.enrollmentId ?? undefined,
+  );
 
   if (!enrollment) {
     return { ok: false, reason: "no_enrollment", message: "No active enrollment" };
