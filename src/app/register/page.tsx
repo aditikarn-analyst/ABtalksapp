@@ -55,8 +55,11 @@ export default async function RegisterPage({ searchParams }: PageProps) {
   }
 
   const params = await searchParams;
+  const claudeEnabled = isClaudeEnabled();
   const initialDomain =
-    params.domain === "CLAUDE" ? ("CLAUDE" as const) : undefined;
+    claudeEnabled || params.domain === "CLAUDE"
+      ? ("CLAUDE" as const)
+      : undefined;
   const refParam = params.ref;
   const refFromUrlNormalized =
     typeof refParam === "string"
@@ -68,7 +71,6 @@ export default async function RegisterPage({ searchParams }: PageProps) {
   const initialRef = refFromUrl ?? refFromCookie ?? "";
 
   const initialName = session.user.name?.trim() ?? "";
-  const claudeEnabled = isClaudeEnabled();
 
   return (
     <div className="flex min-h-svh flex-col bg-gradient-to-br from-primary/5 via-background to-background">

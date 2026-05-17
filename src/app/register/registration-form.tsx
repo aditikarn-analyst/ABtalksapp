@@ -42,7 +42,7 @@ type RegistrationFormValues = {
   graduationYear: number;
   organization: string;
   role: string;
-  yearsExperience: number;
+  yearsExperience: number | undefined;
   domain: RegisterPayloadInput["domain"];
   skills: string[];
   linkedinUrl: string;
@@ -106,7 +106,7 @@ export function RegistrationForm({
   const router = useRouter();
   const [skillDraft, setSkillDraft] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isClaudeContext = initialDomain === "CLAUDE" && claudeEnabled;
+  const isClaudeContext = claudeEnabled;
 
   const domainCardList = useMemo(
     () =>
@@ -126,8 +126,8 @@ export function RegistrationForm({
       graduationYear: 2026,
       organization: "",
       role: "",
-      yearsExperience: 0,
-      domain: isClaudeContext ? "CLAUDE" : claudeEnabled ? "CLAUDE" : "SE",
+      yearsExperience: undefined,
+      domain: claudeEnabled ? "CLAUDE" : "SE",
       skills: [],
       linkedinUrl: "",
       phone: "",
@@ -151,17 +151,17 @@ export function RegistrationForm({
   const userType = watch("userType");
 
   useEffect(() => {
-    if (isClaudeContext) {
+    if (claudeEnabled) {
       setValue("domain", "CLAUDE", { shouldValidate: true });
     }
-  }, [isClaudeContext, setValue]);
+  }, [claudeEnabled, setValue]);
 
   function handleUserTypeChange(next: "STUDENT" | "PROFESSIONAL") {
     setValue("userType", next, { shouldValidate: false });
     if (next === "PROFESSIONAL") {
       setValue("organization", "");
       setValue("role", "");
-      setValue("yearsExperience", 0);
+      setValue("yearsExperience", undefined);
       clearErrors(["college", "graduationYear"]);
     } else {
       setValue("college", "");
@@ -213,7 +213,10 @@ export function RegistrationForm({
       } else {
         fd.append("organization", values.organization);
         fd.append("role", values.role);
-        fd.append("yearsExperience", String(values.yearsExperience));
+        fd.append(
+          "yearsExperience",
+          values.yearsExperience != null ? String(values.yearsExperience) : "",
+        );
       }
 
       const res = await completeRegistrationAction(fd);
@@ -430,10 +433,17 @@ export function RegistrationForm({
                     max={60}
                     placeholder="5"
                     className="max-w-[12rem]"
-                    value={field.value}
+                    value={field.value ?? ""}
                     onChange={(e) => {
-                      const n = Number.parseInt(e.target.value, 10);
-                      field.onChange(Number.isFinite(n) ? n : 0);
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        field.onChange(undefined);
+                        return;
+                      }
+                      const n = Number.parseInt(raw, 10);
+                      if (Number.isFinite(n)) {
+                        field.onChange(Math.min(60, Math.max(0, n)));
+                      }
                     }}
                     onBlur={field.onBlur}
                     ref={field.ref}

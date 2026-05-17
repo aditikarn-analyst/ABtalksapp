@@ -143,8 +143,10 @@ export function PreStartDashboard({ enrollment, challenge }: Props) {
                   className="text-primary underline"
                 >
                   claude.ai
-                </a>{" "}
-                — free tier is enough to start
+                </a>
+                . You can complete the first 10 days of this challenge on
+                Claude&apos;s free plan. From day 11 onward, you&apos;ll need a
+                paid Claude subscription to keep up with the daily tasks.
               </p>
             </div>
           </li>
@@ -171,18 +173,6 @@ export function PreStartDashboard({ enrollment, challenge }: Props) {
               </p>
             </div>
           </li>
-          <li className="flex items-start gap-3">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-              4
-            </span>
-            <div>
-              <p className="font-medium">Identify your daily problem</p>
-              <p className="text-muted-foreground">
-                Pick 1 real work problem you&apos;d love Claude to help with. Day
-                1 will use it.
-              </p>
-            </div>
-          </li>
         </ul>
       </motion.section>
 
@@ -202,7 +192,7 @@ export function PreStartDashboard({ enrollment, challenge }: Props) {
           Get updates, ask questions, and connect with fellow learners
         </p>
         <a
-          href="https://chat.whatsapp.com/LA5CQJbMczH3QGhSyJDPGK"
+          href="https://chat.whatsapp.com/Fqx07wwZhiq0lA6Z7d5uad"
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
