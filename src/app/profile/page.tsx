@@ -22,6 +22,8 @@ import { prisma } from "@/lib/db";
 import { SoundPreferences } from "@/components/profile/sound-preferences";
 import { ProfileForm } from "./profile-form";
 import type { ProfileFormValues } from "@/lib/validations/profile";
+import { userTypeLabel } from "@/lib/profile-display";
+import { UserType } from "@prisma/client";
 
 function domainDisplayName(domain: Domain) {
   switch (domain) {
@@ -119,16 +121,30 @@ export default async function ProfilePage() {
 
   const referralLink = `${publicAppUrl()}/register?ref=${encodeURIComponent(stats.referralCode)}`;
 
-  const formDefaults: ProfileFormValues = {
+  const commonFields = {
     fullName: profile.fullName,
-    college: profile.college,
-    graduationYear: profile.graduationYear,
     skills: [...profile.skills],
     linkedinUrl: profile.linkedinUrl ?? "",
     resumeUrl: profile.resumeUrl ?? "",
     phone: profile.phone ?? "",
     githubUsername: profile.githubUsername ?? "",
   };
+
+  const formDefaults: ProfileFormValues =
+    profile.userType === UserType.STUDENT
+      ? {
+          userType: "STUDENT",
+          ...commonFields,
+          college: profile.college ?? "",
+          graduationYear: profile.graduationYear ?? 2026,
+        }
+      : {
+          userType: "PROFESSIONAL",
+          ...commonFields,
+          organization: profile.organization ?? "",
+          role: profile.role ?? "",
+          yearsExperience: profile.yearsExperience ?? 0,
+        };
 
   return (
     <div className="flex min-h-svh flex-col bg-muted/30">
@@ -153,6 +169,7 @@ export default async function ProfilePage() {
                 </p>
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+                  <Badge variant="outline">{userTypeLabel(profile.userType)}</Badge>
                   <Badge variant="secondary">
                     {domainDisplayName(profile.domain)}
                   </Badge>
@@ -162,6 +179,22 @@ export default async function ProfilePage() {
                     </Badge>
                   ) : null}
                 </div>
+                {profile.userType === UserType.STUDENT ? (
+                  <p className="text-sm text-muted-foreground">
+                    {profile.college}
+                    {profile.graduationYear != null
+                      ? ` · Class of ${profile.graduationYear}`
+                      : null}
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    {profile.role}
+                    {profile.organization ? ` at ${profile.organization}` : null}
+                    {profile.yearsExperience != null
+                      ? ` · ${profile.yearsExperience} yr${profile.yearsExperience === 1 ? "" : "s"} experience`
+                      : null}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

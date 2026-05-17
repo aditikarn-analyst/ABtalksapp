@@ -168,9 +168,6 @@ export function AppHeader({
                     <span className="truncate text-xs text-muted-foreground">
                       {user.email}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      Role: {user.role}
-                    </span>
                   </div>
                 </DropdownMenuLabel>
               </DropdownMenuGroup>

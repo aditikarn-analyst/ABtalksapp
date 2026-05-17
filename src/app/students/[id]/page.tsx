@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Flame } from "lucide-react";
+import { ExternalLink, Flame } from "lucide-react";
+import { UserType } from "@prisma/client";
 import { auth } from "@/auth";
 import { SubmissionHeatmap } from "@/components/dashboard/submission-heatmap";
 import { AppHeader } from "@/components/shared/app-header";
@@ -16,6 +17,7 @@ import {
   getPublicEnrollmentId,
   getPublicProfile,
 } from "@/features/profile/get-public-profile";
+import { formatExperienceBucket } from "@/lib/profile-display";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -94,7 +96,46 @@ export default async function PublicStudentProfilePage({
                   <Badge variant="secondary">Ready for Interview</Badge>
                 ) : null}
               </div>
-              <p className="text-sm text-muted-foreground">{publicProfile.college}</p>
+              {publicProfile.userType === UserType.STUDENT ? (
+                <p className="text-sm text-muted-foreground">
+                  {publicProfile.college}
+                  {publicProfile.graduationYear != null
+                    ? ` · Class of ${publicProfile.graduationYear}`
+                    : null}
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {publicProfile.role}
+                  {publicProfile.organization
+                    ? ` at ${publicProfile.organization}`
+                    : null}
+                  {publicProfile.yearsExperience != null
+                    ? ` · ${formatExperienceBucket(publicProfile.yearsExperience)} experience`
+                    : null}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-3 pt-1">
+                {publicProfile.linkedinUrl ? (
+                  <Link
+                    href={publicProfile.linkedinUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-sm text-primary underline"
+                  >
+                    LinkedIn <ExternalLink className="size-3.5" />
+                  </Link>
+                ) : null}
+                {publicProfile.githubUsername ? (
+                  <Link
+                    href={`https://github.com/${publicProfile.githubUsername}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-sm text-primary underline"
+                  >
+                    GitHub <ExternalLink className="size-3.5" />
+                  </Link>
+                ) : null}
+              </div>
               <p className="text-sm text-muted-foreground">
                 Member since {formatDateIST(publicProfile.joinedAt)}
               </p>

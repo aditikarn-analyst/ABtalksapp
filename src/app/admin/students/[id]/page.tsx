@@ -18,7 +18,9 @@ import { RejectSubmissionButton } from "@/components/admin/reject-submission-but
 import { StudentActionPanel } from "@/components/admin/student-action-panel";
 import { formatDateIST, formatDateTimeIST } from "@/lib/date-utils";
 import { getStudentDetail } from "@/features/admin/get-student-detail";
+import { userTypeLabel } from "@/lib/profile-display";
 import { cn } from "@/lib/utils";
+import { UserType } from "@prisma/client";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -80,12 +82,36 @@ export default async function AdminStudentDetailPage({
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p>
-              <span className="text-muted-foreground">College:</span> {data.profile.college}
+              <span className="text-muted-foreground">Type:</span>{" "}
+              {userTypeLabel(data.profile.userType)}
             </p>
-            <p>
-              <span className="text-muted-foreground">Graduation Year:</span>{" "}
-              {data.profile.graduationYear}
-            </p>
+            {data.profile.userType === UserType.STUDENT ? (
+              <>
+                <p>
+                  <span className="text-muted-foreground">College:</span>{" "}
+                  {data.profile.college ?? "—"}
+                </p>
+                <p>
+                  <span className="text-muted-foreground">Graduation Year:</span>{" "}
+                  {data.profile.graduationYear ?? "—"}
+                </p>
+              </>
+            ) : (
+              <>
+                <p>
+                  <span className="text-muted-foreground">Organization:</span>{" "}
+                  {data.profile.organization ?? "—"}
+                </p>
+                <p>
+                  <span className="text-muted-foreground">Role:</span>{" "}
+                  {data.profile.role ?? "—"}
+                </p>
+                <p>
+                  <span className="text-muted-foreground">Years of Experience:</span>{" "}
+                  {data.profile.yearsExperience ?? "—"}
+                </p>
+              </>
+            )}
             <p>
               <span className="text-muted-foreground">Referral Code:</span>{" "}
               {data.profile.referralCode}

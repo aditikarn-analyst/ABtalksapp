@@ -39,7 +39,8 @@ import {
   ProgressTrack,
 } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { formatDateIST } from "@/lib/date-utils";
+import { formatDateIST, isChallengePreStart } from "@/lib/date-utils";
+import { PreStartDashboard } from "@/components/dashboard/pre-start-dashboard";
 import { prisma } from "@/lib/db";
 import { Domain } from "@prisma/client";
 import { ClaudeChallengeModal } from "@/components/dashboard/claude-challenge-modal";
@@ -159,6 +160,8 @@ export default async function DashboardPage({
   };
   const { enrollment, profile, todayTask, isTodayCompleted } = dashboardData;
 
+  const isPreStart = isChallengePreStart(dashboardData.enrollment.challenge);
+
   if (dashboardData.enrollment.status === "ABANDONED") {
     const endedAction = await prisma.adminAction.findFirst({
       where: {
@@ -227,6 +230,36 @@ export default async function DashboardPage({
         claudeModalStartsAt = claudeChallengeRow.startsAt;
       }
     }
+  }
+
+  if (isPreStart) {
+    return (
+      <div className="flex min-h-svh flex-col bg-muted/30">
+        <AppHeader
+          user={headerUser}
+          userEnrollments={allEnrollments}
+          activeEnrollmentId={dashboardData.enrollment.id}
+          headerDomain={dashboardData.enrollment.domain}
+          domain={dashboardData.profile.domain as Domain}
+        />
+        {showPastMissedToast ? (
+          <PastMissedChallengeToast
+            trigger={showPastMissedToast}
+            cleanPath={dashboardPathWithoutToast}
+          />
+        ) : null}
+        <PreStartDashboard
+          enrollment={{
+            id: dashboardData.enrollment.id,
+            domain: dashboardData.enrollment.domain,
+          }}
+          challenge={{
+            title: dashboardData.enrollment.challenge.title,
+            startsAt: dashboardData.enrollment.challenge.startsAt!,
+          }}
+        />
+      </div>
+    );
   }
 
   const [heatmapData, leaderboard, quizAvailability, quizHistory] =

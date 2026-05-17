@@ -7,10 +7,8 @@ function trimEmptyToUndefined(s: string | undefined): string | undefined {
   return t === "" ? undefined : t;
 }
 
-export const updateProfileSchema = z.object({
+const profileCommonFields = {
   fullName: z.string().trim().min(1).max(200),
-  college: z.string().trim().min(1).max(200),
-  graduationYear: z.coerce.number().int().min(2020).max(2035),
   skills: z
     .array(z.string().trim().min(1).max(80))
     .max(10, "At most 10 skills"),
@@ -19,7 +17,9 @@ export const updateProfileSchema = z.object({
     .default("")
     .transform((s) => trimEmptyToUndefined(s.trim()))
     .pipe(z.union([z.undefined(), z.string().url("Must be a valid URL")])),
-  resumeUrl: z.union([z.literal(""), z.string().url("Must be a valid URL")]).default(""),
+  resumeUrl: z
+    .union([z.literal(""), z.string().url("Must be a valid URL")])
+    .default(""),
   githubUsername: z
     .string()
     .default("")
@@ -34,10 +34,34 @@ export const updateProfileSchema = z.object({
       ]),
     ),
   phone: optionalPhoneSchema,
+};
+
+export const updateStudentProfileSchema = z.object({
+  ...profileCommonFields,
+  college: z.string().trim().min(1).max(200),
+  graduationYear: z.coerce.number().int().min(2020).max(2035),
 });
 
-/** Parsed / validated profile update payload */
-export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export const updateProfessionalProfileSchema = z.object({
+  ...profileCommonFields,
+  organization: z.string().trim().min(1).max(200),
+  role: z.string().trim().min(1).max(200),
+  yearsExperience: z.coerce.number().int().min(0).max(60),
+});
 
-/** Values accepted by the profile form (includes optional defaults). */
-export type ProfileFormValues = z.input<typeof updateProfileSchema>;
+export type UpdateStudentProfileInput = z.infer<typeof updateStudentProfileSchema>;
+export type UpdateProfessionalProfileInput = z.infer<
+  typeof updateProfessionalProfileSchema
+>;
+
+export type StudentProfileFormValues = z.input<typeof updateStudentProfileSchema>;
+export type ProfessionalProfileFormValues = z.input<
+  typeof updateProfessionalProfileSchema
+>;
+
+export type ProfileFormValues =
+  | (StudentProfileFormValues & { userType: "STUDENT" })
+  | (ProfessionalProfileFormValues & { userType: "PROFESSIONAL" });
+
+/** @deprecated Use discriminated ProfileFormValues */
+export type UpdateProfileInput = UpdateStudentProfileInput;

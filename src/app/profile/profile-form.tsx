@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,10 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { updateProfileAction } from "@/app/actions/profile-actions";
 import {
-  updateProfileSchema,
+  updateProfessionalProfileSchema,
+  updateStudentProfileSchema,
   type ProfileFormValues,
 } from "@/lib/validations/profile";
-import { useCallback, useState } from "react";
+import { userTypeLabel } from "@/lib/profile-display";
 
 type Props = {
   initialProfile: ProfileFormValues;
@@ -23,19 +25,15 @@ type Props = {
 export function ProfileForm({ initialProfile }: Props) {
   const router = useRouter();
   const [skillDraft, setSkillDraft] = useState("");
+  const userType = initialProfile.userType;
 
   const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(updateProfileSchema),
-    defaultValues: {
-      fullName: initialProfile.fullName,
-      college: initialProfile.college,
-      graduationYear: initialProfile.graduationYear,
-      skills: initialProfile.skills ?? [],
-      linkedinUrl: initialProfile.linkedinUrl ?? "",
-      resumeUrl: initialProfile.resumeUrl ?? "",
-      phone: initialProfile.phone ?? "",
-      githubUsername: initialProfile.githubUsername ?? "",
-    },
+    resolver: zodResolver(
+      userType === "STUDENT"
+        ? updateStudentProfileSchema
+        : updateProfessionalProfileSchema,
+    ) as never,
+    defaultValues: initialProfile,
   });
 
   const {
@@ -77,13 +75,20 @@ export function ProfileForm({ initialProfile }: Props) {
   async function onSubmit(values: ProfileFormValues) {
     const fd = new FormData();
     fd.append("fullName", values.fullName);
-    fd.append("college", values.college);
-    fd.append("graduationYear", String(values.graduationYear));
     fd.append("skills", JSON.stringify(values.skills));
     fd.append("linkedinUrl", values.linkedinUrl ?? "");
     fd.append("resumeUrl", values.resumeUrl ?? "");
     fd.append("phone", values.phone ?? "");
     fd.append("githubUsername", values.githubUsername ?? "");
+
+    if (userType === "STUDENT" && values.userType === "STUDENT") {
+      fd.append("college", values.college);
+      fd.append("graduationYear", String(values.graduationYear));
+    } else if (values.userType === "PROFESSIONAL") {
+      fd.append("organization", values.organization);
+      fd.append("role", values.role);
+      fd.append("yearsExperience", String(values.yearsExperience));
+    }
 
     const result = await updateProfileAction(fd);
     if (!result.ok) {
@@ -97,6 +102,14 @@ export function ProfileForm({ initialProfile }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
+        <Label>Account type</Label>
+        <p className="text-sm font-medium">{userTypeLabel(userType)}</p>
+        <p className="text-xs text-muted-foreground">
+          Set during registration and cannot be changed here.
+        </p>
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="fullName">Full name</Label>
         <Input id="fullName" autoComplete="name" {...register("fullName")} />
         {errors.fullName ? (
@@ -104,29 +117,69 @@ export function ProfileForm({ initialProfile }: Props) {
         ) : null}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="college">College</Label>
-        <Input id="college" {...register("college")} />
-        {errors.college ? (
-          <p className="text-sm text-destructive">{errors.college.message}</p>
-        ) : null}
-      </div>
+      {userType === "STUDENT" ? (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="college">College</Label>
+            <Input id="college" {...register("college")} />
+            {"college" in errors && errors.college ? (
+              <p className="text-sm text-destructive">{errors.college.message}</p>
+            ) : null}
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="graduationYear">Graduation year</Label>
-        <Input
-          id="graduationYear"
-          type="number"
-          min={2020}
-          max={2035}
-          {...register("graduationYear", { valueAsNumber: true })}
-        />
-        {errors.graduationYear ? (
-          <p className="text-sm text-destructive">
-            {errors.graduationYear.message}
-          </p>
-        ) : null}
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="graduationYear">Graduation year</Label>
+            <Input
+              id="graduationYear"
+              type="number"
+              min={2020}
+              max={2035}
+              {...register("graduationYear", { valueAsNumber: true })}
+            />
+            {"graduationYear" in errors && errors.graduationYear ? (
+              <p className="text-sm text-destructive">
+                {errors.graduationYear.message}
+              </p>
+            ) : null}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="organization">Organization</Label>
+            <Input id="organization" {...register("organization")} />
+            {"organization" in errors && errors.organization ? (
+              <p className="text-sm text-destructive">
+                {errors.organization.message}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="role">Role</Label>
+            <Input id="role" {...register("role")} />
+            {"role" in errors && errors.role ? (
+              <p className="text-sm text-destructive">{errors.role.message}</p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="yearsExperience">Years of experience</Label>
+            <Input
+              id="yearsExperience"
+              type="number"
+              min={0}
+              max={60}
+              {...register("yearsExperience", { valueAsNumber: true })}
+            />
+            {"yearsExperience" in errors && errors.yearsExperience ? (
+              <p className="text-sm text-destructive">
+                {errors.yearsExperience.message}
+              </p>
+            ) : null}
+          </div>
+        </>
+      )}
 
       <div className="space-y-2">
         <Label>Skills (max 10)</Label>

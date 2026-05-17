@@ -45,6 +45,16 @@ export function getIstDateKeyForChallengeDay(
   return formatInTimeZone(dayDate, IST, "yyyy-MM-dd");
 }
 
+/** True when the selected challenge has a future synchronized start (IST calendar). */
+export function isChallengePreStart(challenge?: ChallengeSyncStart): boolean {
+  if (challenge?.startsAt == null) return false;
+  const startKey = formatInTimeZone(challenge.startsAt, IST, "yyyy-MM-dd");
+  const nowKey = formatInTimeZone(new Date(), IST, "yyyy-MM-dd");
+  const startUtc = parseCalendarKeyToUtcDate(startKey);
+  const nowUtc = parseCalendarKeyToUtcDate(nowKey);
+  return nowUtc < startUtc;
+}
+
 export function getCurrentDayNumber(
   enrollment: EnrollmentDayAnchor | Date,
   challenge?: ChallengeSyncStart,

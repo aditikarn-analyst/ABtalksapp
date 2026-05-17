@@ -33,6 +33,16 @@ export function ClaudeCtaSlide({ onPrev }: Props) {
         Starting June 1, 2026.
       </p>
 
+      <div className="mt-6 rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 text-left">
+        <h3 className="mb-2 text-sm font-semibold">📋 Challenge Rules</h3>
+        <ul className="space-y-1 text-xs text-muted-foreground">
+          <li>• 60 days = 60 individual daily posts on LinkedIn</li>
+          <li>• Each day requires its own submission (no batching)</li>
+          <li>• Posting 3 days of work in one post doesn&apos;t count as 3 days</li>
+          <li>• Consistency is the win — missed days break your streak</li>
+        </ul>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

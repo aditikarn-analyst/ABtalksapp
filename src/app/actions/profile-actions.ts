@@ -3,6 +3,8 @@
 import { auth } from "@/auth";
 import { updateProfile } from "@/features/profile/update-profile";
 import type { UpdateProfileResult } from "@/features/profile/update-profile";
+import { prisma } from "@/lib/db";
+import { UserType } from "@prisma/client";
 
 function parseSkillsJson(raw: string | null): unknown {
   if (!raw || raw.trim() === "") return [];
@@ -21,6 +23,15 @@ export async function updateProfileAction(
     return { ok: false, message: "You must be signed in." };
   }
 
+  const profile = await prisma.studentProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { userType: true },
+  });
+
+  if (!profile) {
+    return { ok: false, message: "Profile not found" };
+  }
+
   const skillsParsed = parseSkillsJson(
     typeof formData.get("skills") === "string"
       ? (formData.get("skills") as string)
@@ -31,12 +42,29 @@ export async function updateProfileAction(
   }
 
   return updateProfile(session.user.id, {
+    userType: profile.userType,
     fullName: String(formData.get("fullName") ?? ""),
-    college: String(formData.get("college") ?? ""),
-    graduationYear: formData.get("graduationYear") as string | number,
-    skills: Array.isArray(skillsParsed)
-      ? (skillsParsed as string[])
-      : [],
+    college:
+      profile.userType === UserType.STUDENT
+        ? String(formData.get("college") ?? "")
+        : undefined,
+    graduationYear:
+      profile.userType === UserType.STUDENT
+        ? formData.get("graduationYear")
+        : undefined,
+    organization:
+      profile.userType === UserType.PROFESSIONAL
+        ? String(formData.get("organization") ?? "")
+        : undefined,
+    role:
+      profile.userType === UserType.PROFESSIONAL
+        ? String(formData.get("role") ?? "")
+        : undefined,
+    yearsExperience:
+      profile.userType === UserType.PROFESSIONAL
+        ? formData.get("yearsExperience")
+        : undefined,
+    skills: Array.isArray(skillsParsed) ? (skillsParsed as string[]) : [],
     linkedinUrl: String(formData.get("linkedinUrl") ?? ""),
     resumeUrl: String(formData.get("resumeUrl") ?? ""),
     githubUsername: String(formData.get("githubUsername") ?? ""),

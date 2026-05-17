@@ -1,17 +1,28 @@
+import type { UserType } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
-export async function getPublicProfile(userId: string): Promise<{
+export type PublicProfile = {
   fullName: string;
+  userType: UserType;
   domain: string;
-  college: string;
-  graduationYear: number;
+  college: string | null;
+  graduationYear: number | null;
+  organization: string | null;
+  role: string | null;
+  yearsExperience: number | null;
   skills: string[];
+  linkedinUrl: string | null;
+  githubUsername: string | null;
   joinedAt: Date;
   daysCompleted: number;
   currentStreak: number;
   longestStreak: number;
   isReadyForInterview: boolean;
-} | null> {
+};
+
+export async function getPublicProfile(
+  userId: string,
+): Promise<PublicProfile | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -19,10 +30,16 @@ export async function getPublicProfile(userId: string): Promise<{
       studentProfile: {
         select: {
           fullName: true,
+          userType: true,
           domain: true,
           college: true,
           graduationYear: true,
+          organization: true,
+          role: true,
+          yearsExperience: true,
           skills: true,
+          linkedinUrl: true,
+          githubUsername: true,
           isReadyForInterview: true,
         },
       },
@@ -44,18 +61,25 @@ export async function getPublicProfile(userId: string): Promise<{
   }
 
   const latestEnrollment = user.enrollments[0];
+  const p = user.studentProfile;
 
   return {
-    fullName: user.studentProfile.fullName,
-    domain: user.studentProfile.domain,
-    college: user.studentProfile.college ?? "",
-    graduationYear: user.studentProfile.graduationYear ?? 2026,
-    skills: user.studentProfile.skills,
+    fullName: p.fullName,
+    userType: p.userType,
+    domain: p.domain,
+    college: p.college,
+    graduationYear: p.graduationYear,
+    organization: p.organization,
+    role: p.role,
+    yearsExperience: p.yearsExperience,
+    skills: p.skills,
+    linkedinUrl: p.linkedinUrl,
+    githubUsername: p.githubUsername,
     joinedAt: user.createdAt,
     daysCompleted: latestEnrollment?.daysCompleted ?? 0,
     currentStreak: latestEnrollment?.currentStreak ?? 0,
     longestStreak: latestEnrollment?.longestStreak ?? 0,
-    isReadyForInterview: user.studentProfile.isReadyForInterview,
+    isReadyForInterview: p.isReadyForInterview,
   };
 }
 

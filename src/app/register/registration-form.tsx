@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
@@ -17,12 +17,7 @@ import { toast } from "sonner";
 import { completeRegistrationAction } from "@/app/actions/registration-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -71,16 +66,13 @@ type RegistrationDomain = RegisterPayloadInput["domain"];
 const domainCards: {
   value: RegistrationDomain;
   title: string;
-  description: string;
   icon: typeof Code2;
   accent: string;
   featured?: boolean;
 }[] = [
   {
     value: "CLAUDE",
-    title: "Claude AI Mastery — New!",
-    description:
-      "Our newest track — synchronized cohort start for everyone.",
+    title: "Claude AI Mastery",
     icon: Sparkles,
     accent: "border-l-primary",
     featured: true,
@@ -88,22 +80,18 @@ const domainCards: {
   {
     value: "SE",
     title: "Software Engineering",
-    description: "Build systems, APIs, and full-stack apps over 60 days.",
     icon: Code2,
     accent: "border-l-domains-se",
   },
   {
     value: "DS",
     title: "Data Science",
-    description:
-      "Data, analysis, and practical workflows from exploration to modeling.",
     icon: BarChart3,
     accent: "border-l-domains-ds",
   },
   {
     value: "AI",
     title: "Artificial Intelligence",
-    description: "Foundations and applied AI alongside the community.",
     icon: BrainCircuit,
     accent: "border-l-domains-ai",
   },
@@ -118,6 +106,7 @@ export function RegistrationForm({
   const router = useRouter();
   const [skillDraft, setSkillDraft] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isClaudeContext = initialDomain === "CLAUDE" && claudeEnabled;
 
   const domainCardList = useMemo(
     () =>
@@ -138,12 +127,7 @@ export function RegistrationForm({
       organization: "",
       role: "",
       yearsExperience: 0,
-      domain:
-        initialDomain === "CLAUDE" && claudeEnabled
-          ? "CLAUDE"
-          : claudeEnabled
-            ? "CLAUDE"
-            : "SE",
+      domain: isClaudeContext ? "CLAUDE" : claudeEnabled ? "CLAUDE" : "SE",
       skills: [],
       linkedinUrl: "",
       phone: "",
@@ -165,6 +149,12 @@ export function RegistrationForm({
   const skills = watch("skills") ?? [];
   const selectedDomain = watch("domain");
   const userType = watch("userType");
+
+  useEffect(() => {
+    if (isClaudeContext) {
+      setValue("domain", "CLAUDE", { shouldValidate: true });
+    }
+  }, [isClaudeContext, setValue]);
 
   function handleUserTypeChange(next: "STUDENT" | "PROFESSIONAL") {
     setValue("userType", next, { shouldValidate: false });
@@ -203,11 +193,6 @@ export function RegistrationForm({
       { shouldValidate: true },
     );
   }
-
-  const domainHelperText =
-    selectedDomain === "CLAUDE"
-      ? "🚀 The newest challenge — 60-Day Claude AI Mastery. Synchronized June 1, 2026 start."
-      : "Choose your domain — your daily challenges will be tailored to this area.";
 
   async function onSubmit(values: RegistrationFormValues) {
     setIsSubmitting(true);
@@ -248,9 +233,6 @@ export function RegistrationForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <div className="space-y-3">
         <Label className="text-base font-semibold">I am a…</Label>
-        <p className="text-sm text-muted-foreground">
-          Choose one option so we can collect the right details.
-        </p>
         <Controller
           name="userType"
           control={control}
@@ -282,11 +264,8 @@ export function RegistrationForm({
                       id="user-type-student"
                       className="mt-1"
                     />
-                    <div className="min-w-0 space-y-1">
-                      <div className="font-display font-semibold">Student</div>
-                      <div className="text-sm text-muted-foreground">
-                        Currently in college or university
-                      </div>
+                    <div className="min-w-0">
+                      <div className="font-display font-semibold">College Student</div>
                     </div>
                   </div>
                 </Card>
@@ -308,12 +287,9 @@ export function RegistrationForm({
                       id="user-type-professional"
                       className="mt-1"
                     />
-                    <div className="min-w-0 space-y-1">
+                    <div className="min-w-0">
                       <div className="font-display font-semibold">
                         Working Professional
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Currently employed
                       </div>
                     </div>
                   </div>
@@ -428,9 +404,6 @@ export function RegistrationForm({
 
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <p className="text-xs text-muted-foreground">
-                e.g., Software Engineer, Product Manager
-              </p>
               <Input
                 id="role"
                 placeholder="Your current role"
@@ -455,6 +428,7 @@ export function RegistrationForm({
                     inputMode="numeric"
                     min={0}
                     max={60}
+                    placeholder="5"
                     className="max-w-[12rem]"
                     value={field.value}
                     onChange={(e) => {
@@ -477,12 +451,22 @@ export function RegistrationForm({
         )}
       </AnimatePresence>
 
-      <div className="space-y-3">
-        <Label>Domain</Label>
-        <p className="mt-1 text-sm text-muted-foreground">{domainHelperText}</p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {domainCardList.map(
-            ({ value, title, description, icon: Icon, accent, featured }) => {
+      {isClaudeContext ? (
+        <div className="flex items-center gap-2 rounded-lg border bg-primary/5 p-3">
+          <Sparkles className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+          <div>
+            <p className="text-sm font-medium">Claude AI Mastery Challenge</p>
+            <p className="text-xs text-muted-foreground">
+              You&apos;re registering for the 60-Day Claude challenge starting June
+              1, 2026
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <Label>Domain</Label>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {domainCardList.map(({ value, title, icon: Icon, accent, featured }) => {
             const selected = selectedDomain === value;
             return (
               <Card
@@ -511,7 +495,7 @@ export function RegistrationForm({
                     : !featured && "border-border/60",
                 )}
               >
-                <CardHeader className="gap-3 pb-6">
+                <CardHeader className="gap-2 pb-4">
                   <Icon
                     className={cn(
                       "size-10 shrink-0",
@@ -520,43 +504,31 @@ export function RegistrationForm({
                     aria-hidden
                   />
                   {featured ? (
-                    <>
-                      <CardTitle className="flex flex-wrap items-center gap-2 text-base leading-snug">
-                        <span className="text-lg leading-none" aria-hidden>
-                          ✨
-                        </span>
-                        <span className="font-display font-semibold">
-                          Claude AI Mastery
-                        </span>
-                        <Badge
-                          variant="default"
-                          className="text-[10px] font-semibold uppercase tracking-wide"
-                        >
-                          New
-                        </Badge>
-                      </CardTitle>
-                      <CardDescription className="text-sm leading-relaxed">
-                        {description}
-                      </CardDescription>
-                    </>
+                    <CardTitle className="flex flex-wrap items-center gap-2 text-base leading-snug">
+                      <span className="text-lg leading-none" aria-hidden>
+                        ✨
+                      </span>
+                      <span className="font-display font-semibold">{title}</span>
+                      <Badge
+                        variant="default"
+                        className="text-[10px] font-semibold uppercase tracking-wide"
+                      >
+                        New
+                      </Badge>
+                    </CardTitle>
                   ) : (
-                    <>
-                      <CardTitle className="text-base leading-snug">{title}</CardTitle>
-                      <CardDescription className="text-sm leading-relaxed">
-                        {description}
-                      </CardDescription>
-                    </>
+                    <CardTitle className="text-base leading-snug">{title}</CardTitle>
                   )}
                 </CardHeader>
               </Card>
             );
-          },
-          )}
+            })}
+          </div>
+          {errors.domain ? (
+            <p className="text-sm text-destructive">{errors.domain.message}</p>
+          ) : null}
         </div>
-        {errors.domain ? (
-          <p className="text-sm text-destructive">{errors.domain.message}</p>
-        ) : null}
-      </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="skills">Skills</Label>
@@ -658,9 +630,6 @@ export function RegistrationForm({
 
       <div className="space-y-2">
         <Label htmlFor="referralCode">Referral code (optional)</Label>
-        <p className="text-xs text-muted-foreground">
-          Got a referral code? Enter it here.
-        </p>
         <Controller
           name="referralCode"
           control={control}
@@ -702,7 +671,7 @@ export function RegistrationForm({
             Submitting…
           </>
         ) : (
-          "Complete Registration & Start Day 1"
+          "Complete Registration"
         )}
       </Button>
     </form>

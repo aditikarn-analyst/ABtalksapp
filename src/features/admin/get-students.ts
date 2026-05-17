@@ -21,6 +21,8 @@ export async function getStudents(
     status: string;
     joinedAt: Date;
     isReadyForInterview: boolean;
+    userType: string;
+    affiliation: string;
   }>
 > {
   const q = input.search?.trim();
@@ -63,6 +65,9 @@ export async function getStudents(
               fullName: true,
               domain: true,
               isReadyForInterview: true,
+              userType: true,
+              college: true,
+              organization: true,
             },
           },
         },
@@ -83,5 +88,10 @@ export async function getStudents(
       status: row.status,
       joinedAt: row.user.createdAt,
       isReadyForInterview: row.user.studentProfile?.isReadyForInterview ?? false,
+      userType: row.user.studentProfile?.userType ?? "STUDENT",
+      affiliation:
+        row.user.studentProfile?.userType === "PROFESSIONAL"
+          ? row.user.studentProfile.organization ?? "—"
+          : row.user.studentProfile?.college ?? "—",
     }));
 }

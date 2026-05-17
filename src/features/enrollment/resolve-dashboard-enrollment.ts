@@ -18,6 +18,7 @@ export const sessionEnrollmentSelect = {
     select: {
       id: true,
       domain: true,
+      title: true,
       totalDays: true,
       startsAt: true,
     },

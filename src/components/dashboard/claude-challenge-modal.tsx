@@ -140,22 +140,22 @@ export function ClaudeChallengeModal({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="relative my-8 w-full max-w-2xl rounded-2xl border bg-card p-6 shadow-2xl md:p-8"
+            className="relative my-4 max-h-[calc(100vh-2rem)] w-full max-w-xl overflow-y-auto rounded-2xl border bg-card p-5 shadow-2xl md:my-8 md:p-6"
           >
             <button
               type="button"
               onClick={handleDismiss}
               aria-label="Close modal"
-              className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-accent"
+              className="absolute top-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-accent"
             >
               <X className="h-4 w-4" />
             </button>
 
-            <div className="mx-auto mb-6 w-fit rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary">
+            <div className="mx-auto mb-4 w-fit rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary">
               🚀 60-DAY CHALLENGE
             </div>
 
-            <h2 className="text-center font-display text-3xl font-bold tracking-tight md:text-4xl">
+            <h2 className="text-center font-display text-2xl font-bold tracking-tight md:text-3xl">
               Become AI-Ready
               <br />
               in{" "}
@@ -169,7 +169,7 @@ export function ClaudeChallengeModal({
               future-proof your career.
             </p>
 
-            <div className="mt-6 grid grid-cols-1 items-center gap-4 rounded-xl border bg-muted/30 p-4 md:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 items-center gap-4 rounded-xl border bg-muted/30 p-4 md:grid-cols-2">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="rounded-lg bg-primary/10 p-2">
@@ -231,7 +231,7 @@ export function ClaudeChallengeModal({
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-4">
               <h3 className="mb-3 flex items-center gap-2 font-display font-semibold">
                 <Sparkles className="h-4 w-4 text-primary" />
                 What you&apos;ll learn
@@ -240,7 +240,7 @@ export function ClaudeChallengeModal({
                 {CHALLENGE_CARDS.map((card) => (
                   <div
                     key={card.title}
-                    className="flex items-center gap-2 rounded-lg border bg-background/50 p-3"
+                    className="flex items-center gap-2 rounded-lg border bg-background/50 p-2.5"
                   >
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded ${card.bg}`}
@@ -255,7 +255,7 @@ export function ClaudeChallengeModal({
               </div>
             </div>
 
-            <div className="mt-6 space-y-3">
+            <div className="mt-4 space-y-3">
               <Button
                 type="button"
                 onClick={handleRegister}
@@ -278,7 +278,7 @@ export function ClaudeChallengeModal({
               </Button>
             </div>
 
-            <p className="mt-5 text-center text-xs text-muted-foreground">
+            <p className="mt-4 text-center text-xs text-muted-foreground">
               Built for Students, Developers, PMs & Analysts 💜
             </p>
           </motion.div>

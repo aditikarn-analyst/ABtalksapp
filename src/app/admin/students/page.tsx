@@ -57,6 +57,8 @@ export default async function AdminStudentsPage({
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Affiliation</TableHead>
               <TableHead>Domain</TableHead>
               <TableHead>Day</TableHead>
               <TableHead>Streak</TableHead>
@@ -72,6 +74,12 @@ export default async function AdminStudentsPage({
                     {student.fullName}
                   </Link>
                   <p className="text-xs text-muted-foreground">{student.email}</p>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline">{student.userType}</Badge>
+                </TableCell>
+                <TableCell className="max-w-[12rem] truncate text-sm">
+                  {student.affiliation}
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline" className={domainBadgeClass(student.domain)}>

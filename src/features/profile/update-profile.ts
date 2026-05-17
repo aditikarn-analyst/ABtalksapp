@@ -1,5 +1,9 @@
+import { UserType } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { updateProfileSchema } from "@/lib/validations/profile";
+import {
+  updateProfessionalProfileSchema,
+  updateStudentProfileSchema,
+} from "@/lib/validations/profile";
 
 export type UpdateProfileResult =
   | { ok: true }
@@ -8,9 +12,13 @@ export type UpdateProfileResult =
 export async function updateProfile(
   userId: string,
   input: {
+    userType: UserType;
     fullName: string;
-    college: string;
-    graduationYear: unknown;
+    college?: string;
+    graduationYear?: unknown;
+    organization?: string;
+    role?: string;
+    yearsExperience?: unknown;
     skills: unknown;
     linkedinUrl?: string;
     resumeUrl?: string;
@@ -22,10 +30,60 @@ export async function updateProfile(
     ? input.skills.filter((x): x is string => typeof x === "string")
     : [];
 
-  const parsed = updateProfileSchema.safeParse({
+  const existing = await prisma.studentProfile.findUnique({
+    where: { userId },
+    select: { id: true, userType: true },
+  });
+
+  if (!existing) {
+    return { ok: false, message: "Profile not found" };
+  }
+
+  const savedType = existing.userType;
+
+  if (savedType === UserType.STUDENT) {
+    const parsed = updateStudentProfileSchema.safeParse({
+      fullName: input.fullName,
+      college: input.college ?? "",
+      graduationYear: input.graduationYear,
+      skills: skillsArr,
+      linkedinUrl: input.linkedinUrl ?? "",
+      resumeUrl: input.resumeUrl ?? "",
+      githubUsername: input.githubUsername ?? "",
+      phone: input.phone ?? "",
+    });
+
+    if (!parsed.success) {
+      return {
+        ok: false,
+        message: parsed.error.issues[0]?.message ?? "Invalid input",
+      };
+    }
+
+    const data = parsed.data;
+
+    await prisma.studentProfile.update({
+      where: { userId },
+      data: {
+        fullName: data.fullName,
+        college: data.college,
+        graduationYear: data.graduationYear,
+        skills: data.skills,
+        linkedinUrl: data.linkedinUrl ?? null,
+        resumeUrl: data.resumeUrl === "" ? null : data.resumeUrl,
+        githubUsername: data.githubUsername ?? null,
+        phone: data.phone === "" ? null : data.phone,
+      },
+    });
+
+    return { ok: true };
+  }
+
+  const parsed = updateProfessionalProfileSchema.safeParse({
     fullName: input.fullName,
-    college: input.college,
-    graduationYear: input.graduationYear,
+    organization: input.organization ?? "",
+    role: input.role ?? "",
+    yearsExperience: input.yearsExperience,
     skills: skillsArr,
     linkedinUrl: input.linkedinUrl ?? "",
     resumeUrl: input.resumeUrl ?? "",
@@ -42,21 +100,13 @@ export async function updateProfile(
 
   const data = parsed.data;
 
-  const existing = await prisma.studentProfile.findUnique({
-    where: { userId },
-    select: { id: true },
-  });
-
-  if (!existing) {
-    return { ok: false, message: "Profile not found" };
-  }
-
   await prisma.studentProfile.update({
     where: { userId },
     data: {
       fullName: data.fullName,
-      college: data.college,
-      graduationYear: data.graduationYear,
+      organization: data.organization,
+      role: data.role,
+      yearsExperience: data.yearsExperience,
       skills: data.skills,
       linkedinUrl: data.linkedinUrl ?? null,
       resumeUrl: data.resumeUrl === "" ? null : data.resumeUrl,

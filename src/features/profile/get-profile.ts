@@ -1,4 +1,4 @@
-import type { Domain } from "@prisma/client";
+import type { Domain, UserType } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
 export type ProfileUser = {
@@ -7,10 +7,14 @@ export type ProfileUser = {
   createdAt: Date;
 };
 
-export type ProfileStudent = {
+export type ProfileData = {
   fullName: string;
-  college: string;
-  graduationYear: number;
+  userType: UserType;
+  college: string | null;
+  graduationYear: number | null;
+  organization: string | null;
+  role: string | null;
+  yearsExperience: number | null;
   domain: Domain;
   skills: string[];
   resumeUrl: string | null;
@@ -23,7 +27,7 @@ export type ProfileStudent = {
 
 export async function getProfile(userId: string): Promise<{
   user: ProfileUser;
-  profile: ProfileStudent | null;
+  profile: ProfileData | null;
 }> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -34,8 +38,12 @@ export async function getProfile(userId: string): Promise<{
       studentProfile: {
         select: {
           fullName: true,
+          userType: true,
           college: true,
           graduationYear: true,
+          organization: true,
+          role: true,
+          yearsExperience: true,
           domain: true,
           skills: true,
           resumeUrl: true,
@@ -57,12 +65,6 @@ export async function getProfile(userId: string): Promise<{
 
   return {
     user: userFields,
-    profile: studentProfile
-      ? {
-          ...studentProfile,
-          college: studentProfile.college ?? "",
-          graduationYear: studentProfile.graduationYear ?? 2026,
-        }
-      : null,
+    profile: studentProfile,
   };
 }

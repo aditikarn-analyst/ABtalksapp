@@ -26,7 +26,10 @@ export type DashboardDataWithEnrollment = {
   profile: {
     fullName: string;
     domain: string;
+    userType: "STUDENT" | "PROFESSIONAL";
     college: string | null;
+    organization: string | null;
+    role: string | null;
     referralCode: string;
     isReadyForInterview: boolean;
   };
@@ -39,6 +42,10 @@ export type DashboardDataWithEnrollment = {
     currentStreak: number;
     longestStreak: number;
     status: EnrollmentStatus;
+    challenge: {
+      title: string;
+      startsAt: Date | null;
+    };
   };
   todayTask: {
     id: string;
@@ -133,7 +140,10 @@ export async function getDashboardData(
         select: {
           fullName: true,
           domain: true,
+          userType: true,
           college: true,
+          organization: true,
+          role: true,
           referralCode: true,
           isReadyForInterview: true,
         },
@@ -152,7 +162,10 @@ export async function getDashboardData(
   const profileSnapshot: DashboardDataWithEnrollment["profile"] = {
     fullName: user.studentProfile.fullName,
     domain: user.studentProfile.domain,
+    userType: user.studentProfile.userType,
     college: user.studentProfile.college,
+    organization: user.studentProfile.organization,
+    role: user.studentProfile.role,
     referralCode: user.studentProfile.referralCode,
     isReadyForInterview: user.studentProfile.isReadyForInterview,
   };
@@ -250,7 +263,10 @@ export async function getDashboardData(
     profile: {
       fullName: user.studentProfile.fullName,
       domain: user.studentProfile.domain,
+      userType: user.studentProfile.userType,
       college: user.studentProfile.college,
+      organization: user.studentProfile.organization,
+      role: user.studentProfile.role,
       referralCode: user.studentProfile.referralCode,
       isReadyForInterview: user.studentProfile.isReadyForInterview,
     },
@@ -263,6 +279,10 @@ export async function getDashboardData(
       currentStreak: enrollment.currentStreak,
       longestStreak: enrollment.longestStreak,
       status: enrollment.status,
+      challenge: {
+        title: enrollment.challenge.title,
+        startsAt: enrollment.challenge.startsAt,
+      },
     },
     todayTask,
     isTodayCompleted,
