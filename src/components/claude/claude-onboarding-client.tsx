@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Rocket } from "lucide-react";
-import { toast } from "sonner";
+import { SignupTicker } from "@/components/claude/signup-ticker";
 import { ClaudeWelcomeSlide } from "@/components/claude/slides/claude-welcome-slide";
 import { ClaudeWhySlide } from "@/components/claude/slides/claude-why-slide";
 import { ClaudeRoadmapSlide } from "@/components/claude/slides/claude-roadmap-slide";
@@ -146,7 +146,6 @@ export function ClaudeOnboardingClient() {
   const [signups, setSignups] = useState<Signup[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const toastIndexRef = useRef(0);
 
   useEffect(() => {
     const fetchSignups = async () => {
@@ -156,7 +155,7 @@ export function ClaudeOnboardingClient() {
         setSignups(data.signups ?? []);
         setTotalCount(data.totalCount ?? 0);
       } catch {
-        // Silent fail — toasts just don't show
+        // Silent fail — ticker won't render
       }
     };
 
@@ -164,36 +163,6 @@ export function ClaudeOnboardingClient() {
     const interval = setInterval(fetchSignups, 60_000);
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    if (signups.length === 0) return;
-
-    const showNext = () => {
-      if (isTransitioning) return;
-
-      const signup = signups[toastIndexRef.current % signups.length];
-      toastIndexRef.current += 1;
-
-      const message = signup.context
-        ? `${signup.firstName} from ${signup.context} just joined`
-        : `${signup.firstName} just joined`;
-
-      toast(message, {
-        duration: 4000,
-        position: "bottom-left",
-        icon: "👋",
-        className: "border-orange-500/30",
-      });
-    };
-
-    const initialTimer = setTimeout(showNext, 3000);
-    const interval = setInterval(showNext, 8000);
-
-    return () => {
-      clearTimeout(initialTimer);
-      clearInterval(interval);
-    };
-  }, [signups, isTransitioning]);
 
   function beginTransition(newIndex: number) {
     setIsTransitioning(true);
@@ -228,7 +197,7 @@ export function ClaudeOnboardingClient() {
       <ClaudeBackgroundBlobs slideIndex={currentIndex} />
 
       <div className="relative z-10 flex min-h-svh flex-col">
-        <header className="shrink-0 px-6 py-4">
+        <header className="relative z-20 shrink-0 px-6 py-4">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
@@ -243,6 +212,8 @@ export function ClaudeOnboardingClient() {
             </div>
           </div>
         </header>
+
+        <SignupTicker signups={signups} isPaused={isTransitioning} />
 
         <main className="flex min-h-0 flex-1 items-center justify-center overflow-hidden px-6 py-4">
           <div className="w-full max-w-2xl">
