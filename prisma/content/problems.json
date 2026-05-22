@@ -952,6 +952,175 @@
     ]
   },
   {
+    "dayNumber": 22,
+    "domain": "DS",
+    "title": "Turning Raw Categories into Machine Learning Signals",
+    "problemStatement": "**Phase:** Feature Engineering\nDay 22 focuses on Feature Encoding — transforming categorical variables into numerical representations that Machine Learning systems can understand.\n\n**Real-World Impact:** E-commerce, finance, healthcare, and recommendation systems all rely on properly encoded categorical data to improve prediction quality.\n\n**What to do:**\n- Identify categorical columns in your dataset\n- Apply Label Encoding and One-Hot Encoding\n- Compare dataset structure before vs after encoding\n- Train a baseline model using encoded features\n- Analyze how encoding impacts model performance\n\n**Submission:**\n- Feature encoding notebook\n- Encoded dataset\n- Performance comparison report\n- GitHub repository\n- LinkedIn reflection",
+    "learningObjectives": [
+      "Understand categorical encoding techniques",
+      "Prepare datasets for ML models",
+      "Analyze the impact of preprocessing",
+      "Improve feature quality"
+    ],
+    "resources": [
+      "https://scikit-learn.org/stable/modules/preprocessing.html",
+      "https://pandas.pydata.org/docs/"
+    ],
+    "difficulty": "Medium",
+    "estimatedMinutes": 90,
+    "linkedinTemplate": "Day 22/60 🚀 | ABTalks Data Science Challenge\n\nToday’s focus was: Turning Raw Categories into Machine Learning Signals\n\n🧠 What I explored:\n• Why ML systems require numerical inputs\n• Feature encoding techniques for categorical variables\n• Comparing Label Encoding vs One-Hot Encoding\n• Improving dataset quality for predictive modeling\n\n⚙️ What I worked on:\n• Encoded categorical variables\n• Compared feature transformations\n• Trained models on transformed datasets\n• Analyzed preprocessing impact on predictions\n\n📌 Key Learnings:\n• ML systems cannot directly understand text categories.\n• Encoding quality impacts prediction reliability.\n• Feature preprocessing is critical in real-world pipelines.\n\n🚀 Outcome:\nBy the end of today’s task, I improved my understanding of preparing structured data for Machine Learning systems.\n\nGitHub Repo: {{github_link}}\n\n#FeatureEngineering #MachineLearning #DataScience #Python #ABTalks",
+    "solutionApproach": "Use sklearn preprocessing tools like LabelEncoder and OneHotEncoder and compare model performance before and after encoding.",
+    "tags": [
+      "feature-engineering",
+      "encoding",
+      "preprocessing"
+    ]
+  },
+  {
+    "dayNumber": 23,
+    "domain": "DS",
+    "title": "Finding the Most Important Signals in Data",
+    "problemStatement": "**Phase:** Feature Selection\nDay 23 focuses on Feature Selection — identifying which variables contribute most to prediction quality.\n\n**Real-World Impact:** Real-world ML systems often fail due to noisy or irrelevant features that increase complexity without improving predictions.\n\n**What to do:**\n- Analyze feature correlations and importance\n- Remove low-impact or highly correlated features\n- Train models using selected features only\n- Compare performance before vs after feature selection\n- Document why selected features matter\n\n**Submission:**\n- Feature selection notebook\n- Importance visualizations\n- Comparison report\n- GitHub repository\n- LinkedIn reflection",
+    "learningObjectives": [
+      "Understand feature importance",
+      "Reduce model complexity",
+      "Improve interpretability",
+      "Analyze prediction signals"
+    ],
+    "resources": [
+      "https://scikit-learn.org/stable/modules/feature_selection.html"
+    ],
+    "difficulty": "Medium",
+    "estimatedMinutes": 90,
+    "linkedinTemplate": "Day 23/60 🚀 | ABTalks Data Science Challenge\n\nToday’s focus was: Finding the Most Important Signals in Data\n\n🧠 What I explored:\n• How feature importance impacts ML systems\n• Removing noisy and redundant variables\n• Improving interpretability and efficiency\n• Building cleaner predictive systems\n\n⚙️ What I worked on:\n• Analyzed feature importance scores\n• Removed weak or redundant variables\n• Compared model performance after feature selection\n• Documented meaningful prediction signals\n\n📌 Key Learnings:\n• More features do not always improve predictions.\n• Feature selection improves simplicity and efficiency.\n• Understanding signal quality matters more than quantity.\n\n🚀 Outcome:\nBy the end of today’s task, I improved my ability to identify meaningful patterns and reduce noise in datasets.\n\nGitHub Repo: {{github_link}}\n\n#FeatureSelection #MachineLearning #DataScience #Python #ABTalks",
+    "solutionApproach": "Use correlation analysis, feature importance, or SelectKBest to identify high-impact variables and retrain models.",
+    "tags": [
+      "feature-selection",
+      "machine-learning",
+      "preprocessing"
+    ]
+  },
+  {
+    "dayNumber": 24,
+    "domain": "DS",
+    "title": "Compressing Complex Data with PCA",
+    "problemStatement": "**Phase:** Dimensionality Reduction\nDay 24 focuses on Principal Component Analysis (PCA) — reducing feature dimensions while preserving useful information.\n\n**Real-World Impact:** High-dimensional datasets increase computational complexity and can reduce model performance. PCA helps simplify systems while retaining important patterns.\n\n**What to do:**\n- Apply PCA to your dataset\n- Reduce dimensions to 2 or 3 components\n- Visualize transformed data\n- Compare performance before vs after PCA\n- Analyze explained variance ratios\n\n**Submission:**\n- PCA notebook\n- Visualization plots\n- Variance analysis report\n- GitHub repository\n- LinkedIn reflection",
+    "learningObjectives": [
+      "Understand dimensionality reduction",
+      "Simplify high-dimensional datasets",
+      "Visualize transformed data",
+      "Analyze variance retention"
+    ],
+    "resources": [
+      "https://scikit-learn.org/stable/modules/decomposition.html"
+    ],
+    "difficulty": "Medium",
+    "estimatedMinutes": 100,
+    "linkedinTemplate": "Day 24/60 🚀 | ABTalks Data Science Challenge\n\nToday’s focus was: Compressing Complex Data with PCA\n\n🧠 What I explored:\n• Why high-dimensional data creates challenges\n• How PCA compresses information efficiently\n• Visualizing transformed feature spaces\n• Understanding explained variance\n\n⚙️ What I worked on:\n• Applied PCA to reduce dimensions\n• Visualized transformed datasets\n• Compared performance before vs after reduction\n• Analyzed variance preservation\n\n📌 Key Learnings:\n• PCA simplifies datasets while retaining patterns.\n• Dimensionality impacts model efficiency.\n• Visualization becomes easier after reduction.\n\n🚀 Outcome:\nBy the end of today’s task, I improved my understanding of simplifying complex datasets for scalable Machine Learning systems.\n\nGitHub Repo: {{github_link}}\n\n#PCA #MachineLearning #DataScience #Python #ABTalks",
+    "solutionApproach": "Use sklearn PCA to reduce feature dimensions and visualize transformed datasets.",
+    "tags": [
+      "pca",
+      "dimensionality-reduction",
+      "machine-learning"
+    ]
+  },
+  {
+    "dayNumber": 25,
+    "domain": "DS",
+    "title": "Building Reliable Models with Cross-Validation",
+    "problemStatement": "**Phase:** Model Validation\nDay 25 focuses on Cross-Validation techniques to evaluate how consistently a Machine Learning model performs across multiple data splits.\n\n**Real-World Impact:** Production systems require reliable evaluation methods to ensure predictions generalize well to unseen real-world data.\n\n**What to do:**\n- Apply k-fold cross-validation\n- Evaluate multiple models using cross-validation scores\n- Compare train-test split vs cross-validation results\n- Analyze model stability\n- Document reliability observations\n\n**Submission:**\n- Cross-validation notebook\n- Performance comparison report\n- GitHub repository\n- LinkedIn reflection",
+    "learningObjectives": [
+      "Understand model validation techniques",
+      "Improve evaluation reliability",
+      "Analyze generalization behavior",
+      "Compare validation strategies"
+    ],
+    "resources": [
+      "https://scikit-learn.org/stable/modules/cross_validation.html"
+    ],
+    "difficulty": "Medium",
+    "estimatedMinutes": 90,
+    "linkedinTemplate": "Day 25/60 🚀 | ABTalks Data Science Challenge\n\nToday’s focus was: Building Reliable Models with Cross-Validation\n\n🧠 What I explored:\n• Why a single train-test split can be misleading\n• Understanding k-fold cross-validation\n• Evaluating model consistency across splits\n• Measuring prediction reliability\n\n⚙️ What I worked on:\n• Applied cross-validation workflows\n• Compared multiple model performances\n• Evaluated stability across data splits\n• Documented validation observations\n\n📌 Key Learnings:\n• Reliable evaluation improves trust in ML systems.\n• Cross-validation reduces evaluation bias.\n• Consistency matters as much as accuracy.\n\n🚀 Outcome:\nBy the end of today’s task, I improved my ability to validate Machine Learning systems more reliably.\n\nGitHub Repo: {{github_link}}\n\n#CrossValidation #MachineLearning #DataScience #Python #ABTalks",
+    "solutionApproach": "Use cross_val_score and compare multiple validation strategies to analyze consistency.",
+    "tags": [
+      "cross-validation",
+      "evaluation",
+      "machine-learning"
+    ]
+  },
+  {
+    "dayNumber": 26,
+    "domain": "DS",
+    "title": "Optimizing ML Systems with Hyperparameter Tuning",
+    "problemStatement": "**Phase:** Model Optimization\nDay 26 focuses on Hyperparameter Tuning — systematically improving Machine Learning performance through parameter optimization.\n\n**Real-World Impact:** Production ML systems are rarely deployed using default settings. Optimization improves reliability, efficiency, and predictive performance.\n\n**What to do:**\n- Select a high-performing model from previous tasks\n- Apply GridSearchCV or RandomizedSearchCV\n- Tune key hyperparameters\n- Compare tuned vs untuned performance\n- Document optimization tradeoffs\n\n**Submission:**\n- Hyperparameter tuning notebook\n- Best parameter report\n- Performance comparison\n- GitHub repository\n- LinkedIn reflection",
+    "learningObjectives": [
+      "Understand hyperparameter tuning",
+      "Improve model performance",
+      "Analyze optimization tradeoffs",
+      "Build stronger predictive systems"
+    ],
+    "resources": [
+      "https://scikit-learn.org/stable/modules/grid_search.html"
+    ],
+    "difficulty": "Hard",
+    "estimatedMinutes": 120,
+    "linkedinTemplate": "Day 26/60 🚀 | ABTalks Data Science Challenge\n\nToday’s focus was: Optimizing ML Systems with Hyperparameter Tuning\n\n🧠 What I explored:\n• Why default model settings are rarely optimal\n• Hyperparameter optimization workflows\n• Comparing tuned vs untuned systems\n• Balancing performance improvements and complexity\n\n⚙️ What I worked on:\n• Tuned model hyperparameters\n• Used GridSearchCV/RandomizedSearchCV\n• Improved prediction performance\n• Documented optimization tradeoffs\n\n📌 Key Learnings:\n• Small parameter changes can dramatically improve performance.\n• Optimization requires experimentation and patience.\n• Tuning is critical for production-quality ML systems.\n\n🚀 Outcome:\nBy the end of today’s task, I improved my ability to optimize Machine Learning systems systematically.\n\nGitHub Repo: {{github_link}}\n\n#HyperparameterTuning #MachineLearning #DataScience #Python #ABTalks",
+    "solutionApproach": "Use GridSearchCV or RandomizedSearchCV and compare optimized model performance against baseline systems.",
+    "tags": [
+      "hyperparameter-tuning",
+      "optimization",
+      "machine-learning"
+    ]
+  },
+  {
+    "dayNumber": 27,
+    "domain": "DS",
+    "title": "Understanding Bias vs Variance in ML Systems",
+    "problemStatement": "**Phase:** Model Generalization\nDay 27 focuses on understanding the Bias-Variance Tradeoff and how it affects Machine Learning reliability.\n\n**Real-World Impact:** Every production ML system balances underfitting and overfitting. Engineers must understand this tradeoff to build robust systems.\n\n**What to do:**\n- Compare training vs validation performance\n- Identify signs of underfitting and overfitting\n- Adjust model complexity\n- Visualize learning behavior\n- Document generalization observations\n\n**Submission:**\n- Bias-variance analysis notebook\n- Learning curve visualizations\n- GitHub repository\n- LinkedIn reflection",
+    "learningObjectives": [
+      "Understand underfitting and overfitting",
+      "Analyze model complexity",
+      "Improve generalization behavior",
+      "Interpret learning curves"
+    ],
+    "resources": [
+      "https://scikit-learn.org/stable/modules/learning_curve.html"
+    ],
+    "difficulty": "Medium",
+    "estimatedMinutes": 100,
+    "linkedinTemplate": "Day 27/60 🚀 | ABTalks Data Science Challenge\n\nToday’s focus was: Understanding Bias vs Variance in ML Systems\n\n🧠 What I explored:\n• Why some models memorize while others oversimplify\n• Understanding underfitting vs overfitting\n• Analyzing learning curves and model complexity\n• Improving system generalization\n\n⚙️ What I worked on:\n• Compared training vs validation performance\n• Identified bias and variance issues\n• Adjusted model complexity\n• Visualized learning behavior\n\n📌 Key Learnings:\n• Reliable systems balance simplicity and flexibility.\n• Overfitting reduces real-world performance.\n• Generalization matters more than memorization.\n\n🚀 Outcome:\nBy the end of today’s task, I improved my understanding of how Machine Learning systems learn and generalize.\n\nGitHub Repo: {{github_link}}\n\n#BiasVariance #MachineLearning #DataScience #Python #ABTalks",
+    "solutionApproach": "Compare train/test performance and learning curves to analyze model complexity behavior.",
+    "tags": [
+      "bias-variance",
+      "generalization",
+      "machine-learning"
+    ]
+  },
+  {
+    "dayNumber": 28,
+    "domain": "DS",
+    "title": "Building Your Most Optimized ML System Yet",
+    "problemStatement": "**Phase:** Sprint Review & Optimization\nDay 28 focuses on combining all optimization and preprocessing techniques into one high-performing Machine Learning pipeline.\n\n**Real-World Impact:** Production-level Data Science systems combine preprocessing, validation, feature engineering, and optimization into reproducible workflows.\n\n**What to do:**\n- Combine feature engineering, validation, and tuning workflows\n- Build your best-performing ML pipeline\n- Compare pipeline performance with earlier models\n- Document engineering tradeoffs\n- Write a Week 4 optimization reflection\n\n**Submission:**\n- Optimized ML pipeline notebook\n- Final performance report\n- Sprint reflection\n- GitHub repository\n- LinkedIn reflection",
+    "learningObjectives": [
+      "Combine ML optimization techniques",
+      "Build scalable pipelines",
+      "Improve engineering decision-making",
+      "Develop production-oriented thinking"
+    ],
+    "resources": [
+      "https://scikit-learn.org/stable/modules/compose.html"
+    ],
+    "difficulty": "Hard",
+    "estimatedMinutes": 120,
+    "linkedinTemplate": "Week 4 Complete 🚀 | ABTalks Data Science Challenge\n\nToday’s focus was: Building Your Most Optimized ML System Yet\n\n🧠 What I explored:\n• Combining preprocessing, validation, and optimization\n• Building scalable ML workflows\n• Engineering tradeoffs in production systems\n• Comparing optimized vs baseline pipelines\n\n⚙️ What I worked on:\n• Built a complete optimized ML pipeline\n• Combined feature engineering and tuning workflows\n• Evaluated performance improvements\n• Documented engineering decisions and observations\n\n📌 Key Learnings:\n• High-performing ML systems require multiple optimization layers.\n• Pipelines improve scalability and reproducibility.\n• Production-quality systems are engineered, not guessed.\n\n🚀 Outcome:\nBy the end of this sprint, I improved my ability to build optimized, scalable, and production-oriented ML systems.\n\nGitHub Repo: {{github_link}}\n\n#MachineLearning #DataScience #MLPipeline #Python #ABTalks",
+    "solutionApproach": "Build a complete sklearn pipeline combining preprocessing, feature engineering, validation, and tuning workflows.",
+    "tags": [
+      "ml-pipeline",
+      "optimization",
+      "machine-learning"
+    ]
+  },
+  {
     "dayNumber": 1,
     "domain": "AI",
     "title": "What Does an AI System Actually Do?",
