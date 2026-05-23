@@ -4,7 +4,6 @@ import { Domain } from "@prisma/client";
 import { ExternalLink } from "lucide-react";
 import { auth } from "@/auth";
 import { getProfile } from "@/features/profile/get-profile";
-import { getReferralStats } from "@/features/profile/get-referral-stats";
 import { AppHeader } from "@/components/shared/app-header";
 import { ReferralCard } from "@/components/profile/referral-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,14 +48,6 @@ function initials(name: string) {
   return name.slice(0, 2).toUpperCase() || "?";
 }
 
-function publicAppUrl(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (fromEnv) return fromEnv.replace(/\/$/, "");
-  const vercel = process.env.VERCEL_URL?.trim();
-  if (vercel) return `https://${vercel.replace(/^https?:\/\//, "")}`;
-  return "http://localhost:3000";
-}
-
 export default async function ProfilePage() {
   const session = await auth();
   if (!session?.user?.id) {
@@ -74,9 +65,8 @@ export default async function ProfilePage() {
 
   const userId = session.user.id;
   const claudeEnabled = isClaudeEnabled();
-  const [bundle, referralStats, claudeBanner] = await Promise.all([
+  const [bundle, claudeBanner] = await Promise.all([
     getProfile(userId),
-    getReferralStats(userId),
     claudeEnabled
       ? shouldShowClaudeBanner(userId)
       : Promise.resolve({ show: false, startsAt: null as Date | null }),
@@ -117,19 +107,6 @@ export default async function ProfilePage() {
   }
 
   const { user, profile } = bundle;
-  const stats =
-    referralStats ??
-    ({
-      referralCode: profile.referralCode,
-      totalReferrals: 0,
-      rewardedReferrals: 0,
-      pendingReferrals: 0,
-      currentBadge: "none" as const,
-      nextBadge: { name: "Bronze", requiredCount: 1 },
-      referrals: [],
-    });
-
-  const referralLink = `${publicAppUrl()}/register?ref=${encodeURIComponent(stats.referralCode)}`;
 
   const commonFields = {
     fullName: profile.fullName,
@@ -249,9 +226,8 @@ export default async function ProfilePage() {
             </Card>
 
             <ReferralCard
-              referralCode={stats.referralCode}
-              stats={stats}
-              referralLink={referralLink}
+              referralCode={profile.referralCode}
+              referralCount={profile.referralCount}
             />
           </div>
         </div>

@@ -22,6 +22,7 @@ export type ProfileData = {
   linkedinUrl: string | null;
   githubUsername: string | null;
   referralCode: string;
+  referralCount: number;
   isReadyForInterview: boolean;
 };
 
@@ -63,8 +64,22 @@ export async function getProfile(userId: string): Promise<{
 
   const { studentProfile, ...userFields } = user;
 
+  if (!studentProfile) {
+    return {
+      user: userFields,
+      profile: null,
+    };
+  }
+
+  const referralCount = await prisma.referral.count({
+    where: { referrerId: userId },
+  });
+
   return {
     user: userFields,
-    profile: studentProfile,
+    profile: {
+      ...studentProfile,
+      referralCount,
+    },
   };
 }
